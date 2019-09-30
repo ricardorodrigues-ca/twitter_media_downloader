@@ -2,6 +2,9 @@
 # This is a Python script that will download photos and videos attached to public tweets matching a specified search term or set of search terms. 
 
 import sys
+import os
+from os import path
+import logging
 import time
 import wget
 # pip install searchtweets
@@ -76,6 +79,11 @@ def build_search_query():
     # return the final query string
     return complete_search_query
 
+def scheduler_error_handler(event):
+    if hasattr(event, 'exception'):
+        if event.exception != None:
+            print('The job FAILED to execute. Reason: ' + str(event.exception))
+
 def folder_picker():
     # open a directory picker
     location = askdirectory()
@@ -117,27 +125,34 @@ def download():
                 for x in range(len(tweet.media)):
                     # get a video from the tweet (if available)
                     if tweet.media[x].video_info != None:
-                        try:
-                            video_url = tweet.media[x].video_info.get('variants')[2].get('url')
+                        for y in range(len(tweet.media[x].video_info.get('variants'))):
+                            video_url = tweet.media[x].video_info.get('variants')[y].get('url')
                             file_name = str(tweet.user.screen_name) + '--' + str(tweet.id) + '--' + str(x)
-                            output_directory_full = output_directory.get() + '/' + file_name + '.mp4'
-                            wget.download(video_url, output_directory_full)
-                        except Exception as e:
-                            error_lbl.config(fg="red")
-                            error_text.set('ERROR: ' + str(e))
-                            window.update()
+                            output_directory_full = output_directory.get() + '/' + file_name + '_' + str(y) + '.mp4'
+                            # if the file does NOT already exist
+                            if (not path.exists(output_directory_full)):
+                                # then download it
+                                try:
+                                    wget.download(video_url, output_directory_full)
+                                except Exception as e:
+                                    error_lbl.config(fg="red")
+                                    error_text.set('ERROR: ' + str(e))
+                                    window.update()
 
                     # get a photo from the tweet (if available)
                     if tweet.media[x].media_url_https != None:
-                        try:
                             photo_url = tweet.media[x].media_url_https
                             file_name = str(tweet.user.screen_name) + '--' + str(tweet.id) + '--' + str(x)
                             output_directory_full = output_directory.get() + '/' + file_name + '.png'
-                            wget.download(photo_url, output_directory_full)
-                        except Exception as e:
-                            error_lbl.config(fg="red")
-                            error_text.set('ERROR: ' + str(e))
-                            window.update()
+                            # if the file does NOT already exist
+                            if (not path.exists(output_directory_full)):
+                                # then download it
+                                try:  
+                                    wget.download(photo_url, output_directory_full)
+                                except Exception as e:
+                                    error_lbl.config(fg="red")
+                                    error_text.set('ERROR: ' + str(e))
+                                    window.update()
     
 
 def get_media():
@@ -154,7 +169,8 @@ def get_media():
     # execute the download action on a schedule as specified by seconds_int
     global scheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(download, 'interval', seconds=seconds_int)
+    scheduler.add_job(download, 'interval', seconds=seconds_int, coalesce=TRUE)
+    scheduler.add_listener(scheduler_error_handler)
     scheduler.start()
 
     # immediately execute the download action one time
@@ -275,5 +291,12 @@ def main():
     generate_user_interface()
 
 if __name__ == '__main__':
+    # setup logging for the scheduler
+    logging.basicConfig()
+    logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+
+    # execute the main method
     main()
+
+    # keep the UI active
     window.mainloop()
