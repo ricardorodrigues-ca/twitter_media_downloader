@@ -29,6 +29,7 @@ CONSUMER_SECRET = ''
 # twitter URL parameters
 TWITTER_MULTI_SEARCH_BOOLEAN_OPERATOR = '%20OR%20'
 TWITTER_MEDIA_FILTER = '%20filter%3Amedia'
+TWITTER_SAFE_SEARCH_FILTER = '%20filter%3safe'
 TWITTER_RETWEETS_PARAMETER = '%20-filter%3Aretweets'
 TWITTER_LIVE_RESULTS_URL_PARAMETER = '&f=live'
 TWITTER_RESULT_TYPE_PARAMETER = '&result_type=recent'
@@ -63,6 +64,9 @@ def build_search_query():
 
     # add the exclude retweets parameter to the URL
     complete_search_query = complete_search_query + TWITTER_RETWEETS_PARAMETER
+
+    # add the safe search filter to the URL
+    complete_search_query = complete_search_query + TWITTER_SAFE_SEARCH_FILTER
 
     # add the live results parameter to the URL
     complete_search_query = complete_search_query + TWITTER_LIVE_RESULTS_URL_PARAMETER
