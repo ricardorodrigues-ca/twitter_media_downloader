@@ -117,8 +117,11 @@ def execute_search():
     return results
 
 def download():
-    # get a reference to the global blacklist
+    # get the list of blacklisted media files from the blacklist
+    # Reading the file with each download cycle gives you the ability to edit the blacklist file without restarting the program
     global blacklisted_media
+    with open('blacklist.txt', 'r') as b:
+        blacklisted_media = b.readlines()
 
     # execute the search
     tweets = execute_search()
@@ -297,11 +300,6 @@ def quit():
 ##############################################################################
 
 def main():
-    # get the list of blacklisted media files from the blacklist
-    global blacklisted_media
-    with open('blacklist.txt', 'r') as b:
-        blacklisted_media = b.readlines()
-
     # generate the UI
     generate_user_interface()
 
