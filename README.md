@@ -14,3 +14,4 @@ Example:
 Notes
 * It only downloads up to 100 tweets at a time
 * You must create a Twitter developer account, create your own application, and supply the following values if you want to run this yourself: ACCESS_TOKEN = '', ACCESS_SECRET = '', CONSUMER_KEY = '', CONSUMER_SECRET = ''
+* Save the file names of media files you do not want to download in the blacklist.txt file. Input each file name as a new line in the blacklist file.

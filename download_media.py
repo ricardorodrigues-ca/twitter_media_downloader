@@ -41,6 +41,9 @@ TWITTER_COUNT_PARAMETER = '&count=100'
 # list of search terms
 search_terms = []
 
+# media blacklist
+blacklisted_media = []
+
 ###################################
 
 
@@ -114,6 +117,8 @@ def execute_search():
     return results
 
 def download():
+    # get a reference to the global blacklist
+    global blacklisted_media
 
     # execute the search
     tweets = execute_search()
@@ -134,7 +139,7 @@ def download():
                             file_name = str(tweet.user.screen_name) + '--' + str(tweet.id) + '--' + str(x)
                             output_directory_full = output_directory.get() + '/' + file_name + '_' + str(y) + '.mp4'
                             # if the file does NOT already exist
-                            if (not path.exists(output_directory_full)):
+                            if (file_name not in blacklisted_media and not path.exists(output_directory_full)):
                                 # then download it
                                 try:
                                     wget.download(video_url, output_directory_full)
@@ -149,7 +154,7 @@ def download():
                             file_name = str(tweet.user.screen_name) + '--' + str(tweet.id) + '--' + str(x)
                             output_directory_full = output_directory.get() + '/' + file_name + '.png'
                             # if the file does NOT already exist
-                            if (not path.exists(output_directory_full)):
+                            if (file_name not in blacklisted_media and not path.exists(output_directory_full)):
                                 # then download it
                                 try:  
                                     wget.download(photo_url, output_directory_full)
@@ -292,6 +297,12 @@ def quit():
 ##############################################################################
 
 def main():
+    # get the list of blacklisted media files from the blacklist
+    global blacklisted_media
+    with open('blacklist.txt', 'r') as b:
+        blacklisted_media = b.readlines()
+
+    # generate the UI
     generate_user_interface()
 
 if __name__ == '__main__':
