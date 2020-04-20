@@ -123,6 +123,13 @@ def download():
     with open('blacklist.txt', 'r') as b:
         blacklisted_media = b.readlines()
 
+    # remove any new line characters from each file name listed in the blacklist file
+    line_count = len(blacklisted_media)
+    current_line_number = 0
+    while current_line_number < line_count:
+        blacklisted_media[current_line_number] = blacklisted_media[current_line_number].replace("\n", "")
+        current_line_number += 1
+
     # execute the search
     tweets = execute_search()
 
