@@ -120,7 +120,7 @@ def download():
     # get the list of blacklisted media files from the blacklist
     # Reading the file with each download cycle gives you the ability to edit the blacklist file without restarting the program
     global blacklisted_media
-    with open('blacklist.txt', 'r') as b:
+    with open('blacklist.txt', 'r', encoding="UTF-8") as b:
         blacklisted_media = b.readlines()
 
     # remove any new line characters from each file name listed in the blacklist file
